@@ -43,7 +43,6 @@ var gameBoard = {
 			this.canvas.width = window.innerWidth;
 			this.canvas.height = (window.innerHeight - 20);
 		}
-		console.log(this.canvas.width, this.canvas.height);
 	},
 	// Clear all the drawing in the gameBoard
 	clear : function(){
@@ -52,13 +51,44 @@ var gameBoard = {
 
 }
 
+// Define a GameObject for all interactable elements of the game
+function GameObject(){
+	this.x = 0;
+	this.y = 0;
+	this.width = 10;
+	this.height = 10;
+	this.draw = function(){};
+	this.move = function(){};
+}
+
+// Create a Player
+function initPlayer(){
+	let player = new GameObject();
+	player.y = gameBoard.canvas.height / 2;
+	player.move = function(){
+		this.x += 5;
+		if(this.x >= gameBoard.canvas.width){
+			this.x = 0;
+		}
+		console.log(this.x, this.y);
+	}
+	player.draw = function(gc){
+		gc.fillStyle = "#FF0000";
+		gc.fillRect(this.x, this.y, this.width, this.height);
+	}
+	return player;
+}
+
+// Update the gameBoards
 function update(){
 	gameBoard.clear();
 	gameBoard.resize();
 	gameBoard.draw();
+	player.move();
+	player.draw(gameBoard.gc);
 }
 
 gameBoard.initialize();
 gameBoard.setResolution(4 / 3);
+let player = initPlayer();
 setInterval(update, 20);
-
