@@ -6,6 +6,8 @@ var gameBoard = {
 	canvas : document.createElement("canvas"),
 	// Initialize the gameBoard
 	initialize : function(){
+		this.canvas.setAttribute("style", "margin:auto; display:block");
+		document.body.appendChild(this.canvas);
 		this.gc = this.canvas.getContext("2d");
 		this.canvas.width = window.innerWidth;
 		this.canvas.height = window.innerHeight;
@@ -19,7 +21,7 @@ var gameBoard = {
 	setResolution : function(res){
 		this.resolution = res;
 	},
-	// TO-DO: Draw static objects
+	// Draw static objects
 	draw : function(){
 		this.gc.fillStyle = '#000000';
 		this.gc.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -27,19 +29,19 @@ var gameBoard = {
 	// Resize the canvas depending on how much space is available
 	resize : function(){
 		// If the width to height ratio is larger than desired, use height as the basis for size
-		if((window.innerWidth / window.innerHeight) > this.resolution){
-			this.canvas.width = window.innerHeight * this.resolution;
-			this.canvas.height = window.innerHeight;
+		if((window.innerWidth / (window.innerHeight - 20)) > this.resolution){
+			this.canvas.width = (window.innerHeight - 20) * this.resolution;
+			this.canvas.height = window.innerHeight - 20;
 		}
 		// If the width to height ratio is smaller than desired, use width as the basis for size
-		else if((window.innerWidth / window.innerHeight) < this.resolution){
+		else if((window.innerWidth / (window.innerHeight - 20)) < this.resolution){
 			this.canvas.width = window.innerWidth;
 			this.canvas.height = window.innerWidth / this.resolution;
 		}
 		// If the width to height ratio is the same as the desired ratio, both can be used
 		else{
 			this.canvas.width = window.innerWidth;
-			this.canvas.height = window.innerHeight;
+			this.canvas.height = (window.innerHeight - 20);
 		}
 		console.log(this.canvas.width, this.canvas.height);
 	},
@@ -51,7 +53,7 @@ var gameBoard = {
 }
 
 function update(){
-	//gameBoard.clear();
+	gameBoard.clear();
 	gameBoard.resize();
 	gameBoard.draw();
 }
