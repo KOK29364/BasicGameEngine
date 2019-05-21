@@ -1,5 +1,7 @@
 
 
+var friction = 2;
+
 // gameBoard is the object that houses the canvas
 var gameBoard = {
 	
@@ -63,6 +65,8 @@ var gameBoard = {
 gameBoard.initialize();
 gameBoard.setResolution(4 / 3);
 
+let walls = [createWall(20, 20, 5, 30), createWall(20, 20, 30, 5)];
+
 // Define a GameObject for all interactable elements of the game
 function GameObject(){
 	this.deltaX = 0;
@@ -81,23 +85,24 @@ function initPlayer(){
 	let player = new GameObject();
 	player.y = gameBoard.canvas.height / 2;
 	player.move = function(){
-		if(gameBoard.keys.includes(38)){
-			this.deltaY = -2;
+		var topSpeed = 50;
+		if(gameBoard.keys.includes(38) && this.deltaY > -topSpeed){
+			this.deltaY += -1;
 		}
-		if(gameBoard.keys.includes(37)){
-			this.deltaX = -2;
+		if(gameBoard.keys.includes(37) && this.deltaX > -topSpeed){
+			this.deltaX += -1;
 		}
-		if(gameBoard.keys.includes(40)){
-			this.deltaY = 2;
+		if(gameBoard.keys.includes(40) && this.deltaY < topSpeed){
+			this.deltaY += 1;
 		}
-		if(gameBoard.keys.includes(39)){
-			this.deltaX = 2;
+		if(gameBoard.keys.includes(39) && this.deltaX < topSpeed){
+			this.deltaX += 1;
 		}
 		if(!(gameBoard.keys.includes(38) || gameBoard.keys.includes(40))){
-			this.deltaY = 0;
+			this.deltaY -= Math.sign(this.deltaY) * friction;
 		}
 		if(!(gameBoard.keys.includes(37) || gameBoard.keys.includes(39))){
-			this.deltaX = 0;
+			this.deltaX -= Math.sign(this.deltaX) * friction;
 		}
 	}
 	player.draw = function(gc){
@@ -114,12 +119,28 @@ function initPlayer(){
 	return player;
 }
 
+function createWall(x, y, width, height){
+	let wall = new GameObject();
+	wall.x = x;
+	wall.y = y;
+	wall.width = width;
+	wall.height = height;
+	wall.draw = function(gc){
+		gc.fillStyle = "#555555";
+		gc.fillRect(this.x, this.y, this.width, this.height);
+	}
+	return wall;
+}
+
 // Update the gameBoard
 function update(){
 	gameBoard.clear();
 	gameBoard.resize();
 	gameBoard.draw();
 	player.update(gameBoard.gc);
+	for(var i = 0; i < walls.length; i ++){
+		walls[i].draw(gameBoard.gc);
+	}
 }
 
 let player = initPlayer();
