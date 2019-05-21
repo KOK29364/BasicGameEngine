@@ -11,10 +11,19 @@ var gameBoard = {
 		this.gc = this.canvas.getContext("2d");
 		this.canvas.width = window.innerWidth;
 		this.canvas.height = window.innerHeight;
+		this.keys = [];
 		// Add action listeners for the mouse
 		window.addEventListener('mousemove', function (e) {
      		gameBoard.mouseX = e.pageX;
       		gameBoard.mouseY = e.pageY;
+    	});
+    	window.addEventListener('keyup', function (e) {
+     		gameBoard.keys = gameBoard.keys.filter(item => item != e.keyCode);
+    	});
+    	window.addEventListener('keydown', function (e) {
+    		if(!gameBoard.keys.includes(e.keyCode)){
+     			gameBoard.keys.push(e.keyCode);
+     		}
     	});
 	},
 	// Set the desired resolution for the canvas, in width over height
@@ -51,14 +60,20 @@ var gameBoard = {
 
 }
 
+gameBoard.initialize();
+gameBoard.setResolution(4 / 3);
+
 // Define a GameObject for all interactable elements of the game
 function GameObject(){
+	this.deltaX = 0;
+	this.deltaY = 0;
 	this.x = 0;
 	this.y = 0;
 	this.width = 10;
 	this.height = 10;
 	this.draw = function(){};
 	this.move = function(){};
+	this.update = function(){};
 }
 
 // Create a Player
@@ -66,29 +81,46 @@ function initPlayer(){
 	let player = new GameObject();
 	player.y = gameBoard.canvas.height / 2;
 	player.move = function(){
-		this.x += 5;
-		if(this.x >= gameBoard.canvas.width){
-			this.x = 0;
+		if(gameBoard.keys.includes(38)){
+			this.deltaY = -2;
 		}
-		console.log(this.x, this.y);
+		if(gameBoard.keys.includes(37)){
+			this.deltaX = -2;
+		}
+		if(gameBoard.keys.includes(40)){
+			this.deltaY = 2;
+		}
+		if(gameBoard.keys.includes(39)){
+			this.deltaX = 2;
+		}
+		if(!(gameBoard.keys.includes(38) || gameBoard.keys.includes(40))){
+			this.deltaY = 0;
+		}
+		if(!(gameBoard.keys.includes(37) || gameBoard.keys.includes(39))){
+			this.deltaX = 0;
+		}
 	}
 	player.draw = function(gc){
 		gc.fillStyle = "#FF0000";
 		gc.fillRect(this.x, this.y, this.width, this.height);
 	}
+	player.update = function(gc){
+		this.move();
+		this.draw(gc);
+		console.log(this.deltaX);
+		this.x += this.deltaX;
+		this.y += this.deltaY;
+	}
 	return player;
 }
 
-// Update the gameBoards
+// Update the gameBoard
 function update(){
 	gameBoard.clear();
 	gameBoard.resize();
 	gameBoard.draw();
-	player.move();
-	player.draw(gameBoard.gc);
+	player.update(gameBoard.gc);
 }
 
-gameBoard.initialize();
-gameBoard.setResolution(4 / 3);
 let player = initPlayer();
 setInterval(update, 20);
